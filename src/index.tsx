@@ -10,7 +10,8 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import Root from './components/elements/MainLayout';
-import Home from './components/pages/Home'
+import Home from './components/pages/Home';
+import './components/styles/index.scss';
 
 const router = createBrowserRouter(
   createRoutesFromElements(

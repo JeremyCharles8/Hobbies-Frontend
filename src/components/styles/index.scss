@@ -1,0 +1,12 @@
+@use 'variables' as var;
+@use 'reset';
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var.$color-primary-background;
+  color: var.$color-primary-policy
+}

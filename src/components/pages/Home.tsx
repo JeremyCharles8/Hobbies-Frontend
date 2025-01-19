@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
-//TODO define formData, formData type and make env variable for API_URL
-const API_URL = '';
+import { useEffect, useState } from 'react';
+import { useNavigate, NavLink } from 'react-router-dom';
+
+import '../styles/home.scss';
+import { SigninForm } from '../../types/user.type';
+
+const API_URL = 'VITE_API_URL';
 
 const signin = async (formData: SigninForm) => {
   try {
@@ -34,15 +37,15 @@ export default function Home() {
   });
 
   // Redirect to profile page if cookie exists
-  useEffect(() => {
-    //TODO
-    const token = document.cookie;
-    console.log(token);
+  // useEffect(() => {
+    
+  //   const token = document.cookie;
+  //   console.log(token);
 
-    if (token) {
-      navigate("/profile");
-    }
-  }, [navigate]);
+  //   if (token) {
+  //     navigate("/profile");
+  //   }
+  // }, [navigate]);
 
   // Update formData with current field value
   const handleChange = async (e: {target: {name: string, value: string}}) => {
@@ -70,18 +73,21 @@ export default function Home() {
   return (
     <section className="home">
       <section className="home__left ">
-        <article className="home__article">
-          <title className="home__title">Lorem ipsum</title>
-          <p className="home__presentation">Lorem ipsum</p>
+        <article className="home__article home__article--left">
+          <h1 className="home__title home__title--main">HOBBIES</h1>
+          <p className="home__presentation">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed libero velit, pulvinar vitae mattis sit amet, volutpat cursus nunc. Suspendisse potenti. Quisque ut feugiat dolor.
+          </p>
         </article>
       </section>
       <section className="home__right">
-        <article className="home__article">
+        <article className="home__article home__article--right">
           <header className="home__header">
-            <h2 className="home__title">Sign in</h2>
+            <h2 className="home__title home__title--section">Sign in</h2>
           </header>
           <form className="home__form" onSubmit={handleSubmit}>
             <input
+              className="home__input"
               type="email"
               name="email"
               placeholder="Email"
@@ -89,18 +95,22 @@ export default function Home() {
               onChange={handleChange}
             />
             <input
+              className="home__input"
               type="password"
               name="password" 
               placeholder="Password"
               required
               onChange={handleChange}
             />
-            <button type="submit" className="home__form__button">
+            <button type="submit" className="home__button">
               Log in
             </button>
+            <NavLink className="home__recover" to="/pwRecover">
+              Forgot my password?
+            </NavLink>
           </form>
           <footer className="home__footer">
-            <h3 className="home__title">OR</h3>
+            <h3 className="home__title home__title--alternative">OR</h3>
             <p>If you don't already have an acount</p>
             <NavLink className="home__signup" to="/signup">
               Sign up

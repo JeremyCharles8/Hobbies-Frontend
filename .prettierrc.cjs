@@ -6,4 +6,6 @@ module.exports = {
   endOfLine: 'lf',
   trailingComma: 'es5',
   indentStyle: 'space',
+  printWidth: 80,
+  bracketSpacing: true,
 };
