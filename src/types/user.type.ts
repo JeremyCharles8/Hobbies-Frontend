@@ -13,3 +13,8 @@ export interface IUser {
 }
 
 export type SigninForm = Pick<IUser, 'email' | 'password'>;
+
+export type SignupForm = Pick<
+  IUser,
+  'nickname' | 'email' | 'password' | 'repeatPassword'
+>;

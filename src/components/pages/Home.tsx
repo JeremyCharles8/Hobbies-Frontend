@@ -4,11 +4,11 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import '../styles/home.scss';
 import { SigninForm } from '../../types/user.type';
 
-const API_URL = 'VITE_API_URL';
+const apiUrl = 'VITE_API_URL';
 
 const signin = async (formData: SigninForm) => {
   try {
-    const response = await fetch(`${API_URL}/users/signin`, {
+    const response = await fetch(`${apiUrl}/auth/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -18,7 +18,6 @@ const signin = async (formData: SigninForm) => {
     });
     //TODO data type as result or error
     const data = await response.json();
-    console.log(data);
     if(!response.ok) {
       return { status: response.status, error: data.error, data: null };
     }
