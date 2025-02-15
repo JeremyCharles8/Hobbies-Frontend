@@ -18,3 +18,5 @@ export type SignupForm = Pick<
   IUser,
   'nickname' | 'email' | 'password' | 'repeatPassword'
 >;
+
+export type LoginResponseData = string | { error: string };

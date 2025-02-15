@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import '../styles/registration.scss';
 import { SignupForm } from '../../types/user.type';
 
-const apiUrl = 'VITE_API_URL';
+const apiUrl: string = import.meta.env.VITE_API_URL;
 
 const signup = async (formData: SignupForm) => {
   try {
@@ -59,38 +60,42 @@ export  default function Signup() {
   }
 
   return (
-    <form className="form" onSubmit={handleSubmit}>
-      <input 
-        className="form__input" 
-        type="text" 
-        name="nickname" 
-        placeholder="Nickname" 
-        required 
-        onChange={handleChange}
-      />
-      <input 
-        className="form__input" 
-        type="email" name="email" 
-        placeholder="Email" 
-        required 
-        onChange={handleChange}
-      />
-      <input 
-        className="form__input" 
-        type="password" 
-        name="password" 
-        placeholder="Password" 
-        required 
-        onChange={handleChange}
-      />
-      <input 
-        className="form__input" 
-        type="password" 
-        name="repeatPassword" 
-        placeholder="Repeat Password" 
-        required 
-        onChange={handleChange}
-      />
-    </form>
+    <section className="container">
+      <form className="form" onSubmit={handleSubmit}>
+        <h1 className="form__title">Registration</h1>
+        <input 
+          className="form__input" 
+          type="text" 
+          name="nickname" 
+          placeholder="Nickname" 
+          required 
+          onChange={handleChange}
+        />
+        <input 
+          className="form__input" 
+          type="email" name="email" 
+          placeholder="Email" 
+          required 
+          onChange={handleChange}
+        />
+        <input 
+          className="form__input" 
+          type="password" 
+          name="password" 
+          placeholder="Password" 
+          required 
+          onChange={handleChange}
+        />
+        <input 
+          className="form__input" 
+          type="password" 
+          name="repeatPassword" 
+          placeholder="Repeat Password" 
+          required 
+          onChange={handleChange}
+        />
+        <button type="submit" className="form__button">Sign up</button>
+      </form>
+    </section>
   )
 }

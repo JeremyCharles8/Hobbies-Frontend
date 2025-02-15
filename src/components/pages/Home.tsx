@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import '../styles/home.scss';
-import { SigninForm } from '../../types/user.type';
+import { SigninForm, LoginResponseData } from '../../types/user.type';
 
-const apiUrl = 'VITE_API_URL';
+const apiUrl: string = import.meta.env.VITE_API_URL;
 
 const signin = async (formData: SigninForm) => {
   try {
@@ -14,12 +15,14 @@ const signin = async (formData: SigninForm) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(formData),
-      credentials: 'include'
+      credentials: 'include',
     });
-    //TODO data type as result or error
-    const data = await response.json();
+
+    const data: LoginResponseData = await response.json();
     if(!response.ok) {
-      return { status: response.status, error: data.error, data: null };
+      if(typeof data === 'object'){
+        return { status: response.status, error: data.error, data: null };
+      }
     }
 
     return { status: response.status, error: null, data };
@@ -28,28 +31,57 @@ const signin = async (formData: SigninForm) => {
   }
 };
 
+const getUser = async () => {
+  try {
+    const response = await fetch(`${apiUrl}/users/`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    //TODO data type as result or error + validation
+    const data = await response.json();
+    if(!response.ok) {
+      return { status: response.status, error: data.error, data: null }; 
+    }
+
+    return { status: response.status, error: null, data };
+  } catch (error) {
+    console.log('Error sending request', error);
+  }
+}
+
 export default function Home() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isServerError, setIsServerError] = useState(false);
 
-  // Redirect to profile page if cookie exists
-  // useEffect(() => {
-    
-  //   const token = document.cookie;
-  //   console.log(token);
+  // Redirect to profile page if user's already authenticated
+  useEffect(() => {
+    const isUserAuthenticated = async () => {
+      try {
+        const userData = await getUser();
+        //TODO stock user's data in cache before redirect to /profile
+        if (userData && userData.status === 200) {
+          navigate("/profile");
+        }
 
-  //   if (token) {
-  //     navigate("/profile");
-  //   }
-  // }, [navigate]);
+      } catch(error) {
+        console.log('Check user failed', error);
+      }
+    }
+
+    isUserAuthenticated();
+  }, [navigate]);
 
   // Update formData with current field value
   const handleChange = async (e: {target: {name: string, value: string}}) => {
     const { name, value } = e.target;
 
+    setErrorMessage('');
     setFormData({
       ...formData,
       [name]: value,
@@ -62,8 +94,25 @@ export default function Home() {
 
     try {
       const response = await signin(formData);
-      // TODO manage error
-      navigate('/profile');
+      if(response && response.status === 500){
+        setIsServerError(true);
+        return;
+      } 
+
+      if(response && response.status === 401){
+        setErrorMessage('Incorrect email or password');
+        return;
+      }
+
+      if(response && response.status === 200){
+        setFormData({
+          email: '',
+          password: '',
+        });
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        
+        navigate('/profile');
+      }
     } catch(error) {
       console.log('login error', error);
     }
@@ -85,6 +134,9 @@ export default function Home() {
             <h2 className="home__title home__title--section">Sign in</h2>
           </header>
           <form className="home__form" onSubmit={handleSubmit}>
+            { errorMessage && 
+              <p className="home__inputError" role="alert">{errorMessage}</p> 
+            }
             <input
               className="home__input"
               type="email"
@@ -116,6 +168,13 @@ export default function Home() {
             </NavLink>
           </footer>
         </article>
+        { isServerError && 
+        <aside className="home__toast" role="alert">
+          <p className="home__servError">
+            Internal server error, please try again later
+          </p>
+        </aside>
+        }
       </section>
     </section>
   );
