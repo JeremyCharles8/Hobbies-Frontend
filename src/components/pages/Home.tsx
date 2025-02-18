@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useUserData } from '../../hooks/useUser.hook';
 import '../styles/home.scss';
 import { SigninForm, LoginResponseData } from '../../types/user.type';
 
@@ -19,8 +20,10 @@ const signin = async (formData: SigninForm) => {
     });
 
     const data: LoginResponseData = await response.json();
-    if(!response.ok) {
-      if(typeof data === 'object'){
+    if (!response.ok) {
+      if (typeof data === 'object') {
+        console.log('status:', response.status, 'errorData', data.error);
+
         return { status: response.status, error: data.error, data: null };
       }
     }
@@ -31,54 +34,35 @@ const signin = async (formData: SigninForm) => {
   }
 };
 
-const getUser = async () => {
-  try {
-    const response = await fetch(`${apiUrl}/users/`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-    //TODO data type as result or error + validation
-    const data = await response.json();
-    if(!response.ok) {
-      return { status: response.status, error: data.error, data: null }; 
-    }
-
-    return { status: response.status, error: null, data };
-  } catch (error) {
-    console.log('Error sending request', error);
-  }
-}
-
 export default function Home() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [isServerError, setIsServerError] = useState(false);
 
+  // Try to load cache with user's informations
+  const { data } = useUserData();
+
   // Redirect to profile page if user's already authenticated
   useEffect(() => {
-    const isUserAuthenticated = async () => {
-      try {
-        const userData = await getUser();
-        //TODO stock user's data in cache before redirect to /profile
-        if (userData && userData.status === 200) {
-          navigate("/profile");
-        }
+    console.log('Entrée dans le useEffect');
 
-      } catch(error) {
-        console.log('Check user failed', error);
-      }
+    if (data) {
+      console.log('data:', data);
+
+      navigate('/profile');
     }
-
-    isUserAuthenticated();
-  }, [navigate]);
+    //TODO manage error message if isError
+  }, [data]);
 
   // Update formData with current field value
-  const handleChange = async (e: {target: {name: string, value: string}}) => {
+  const handleChange = async (e: {
+    target: { name: string; value: string };
+  }) => {
     const { name, value } = e.target;
 
     setErrorMessage('');
@@ -87,33 +71,33 @@ export default function Home() {
       [name]: value,
     });
   };
-  
+
   // Call login fetch function with formData and redirect to profile page
-  const handleSubmit = async (e: { preventDefault: () => void}) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     try {
       const response = await signin(formData);
-      if(response && response.status === 500){
+      if (response && response.status === 500) {
         setIsServerError(true);
         return;
-      } 
+      }
 
-      if(response && response.status === 401){
+      if (response && response.status === 401) {
         setErrorMessage('Incorrect email or password');
         return;
       }
 
-      if(response && response.status === 200){
+      if (response && response.status === 200) {
         setFormData({
           email: '',
           password: '',
         });
         queryClient.invalidateQueries({ queryKey: ['user'] });
-        
+
         navigate('/profile');
       }
-    } catch(error) {
+    } catch (error) {
       console.log('login error', error);
     }
   };
@@ -124,7 +108,9 @@ export default function Home() {
         <article className="home__article home__article--left">
           <h1 className="home__title home__title--main">HOBBIES</h1>
           <p className="home__presentation">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed libero velit, pulvinar vitae mattis sit amet, volutpat cursus nunc. Suspendisse potenti. Quisque ut feugiat dolor.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed libero
+            velit, pulvinar vitae mattis sit amet, volutpat cursus nunc.
+            Suspendisse potenti. Quisque ut feugiat dolor.
           </p>
         </article>
       </section>
@@ -134,9 +120,11 @@ export default function Home() {
             <h2 className="home__title home__title--section">Sign in</h2>
           </header>
           <form className="home__form" onSubmit={handleSubmit}>
-            { errorMessage && 
-              <p className="home__inputError" role="alert">{errorMessage}</p> 
-            }
+            {errorMessage && (
+              <p className="home__inputError" role="alert">
+                {errorMessage}
+              </p>
+            )}
             <input
               className="home__input"
               type="email"
@@ -148,7 +136,7 @@ export default function Home() {
             <input
               className="home__input"
               type="password"
-              name="password" 
+              name="password"
               placeholder="Password"
               required
               onChange={handleChange}
@@ -168,14 +156,14 @@ export default function Home() {
             </NavLink>
           </footer>
         </article>
-        { isServerError && 
-        <aside className="home__toast" role="alert">
-          <p className="home__servError">
-            Internal server error, please try again later
-          </p>
-        </aside>
-        }
+        {isServerError && (
+          <aside className="home__toast" role="alert">
+            <p className="home__servError">
+              Internal server error, please try again later
+            </p>
+          </aside>
+        )}
       </section>
     </section>
   );
-};
+}
