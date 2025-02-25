@@ -4,7 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { useUserData } from '../../hooks/useUser.hook';
 import '../styles/home.scss';
-import { SigninForm, LoginResponseData } from '../../types/user.type';
+import { SigninForm } from '../../types/user.type';
+import { ErrorData } from '../../types/error.type';
 
 const apiUrl: string = import.meta.env.VITE_API_URL;
 
@@ -19,14 +20,11 @@ const signin = async (formData: SigninForm) => {
       credentials: 'include',
     });
 
-    const data: LoginResponseData = await response.json();
     if (!response.ok) {
-      if (typeof data === 'object') {
-        console.log('status:', response.status, 'errorData', data.error);
-
-        return { status: response.status, error: data.error, data: null };
-      }
+      const errorData: ErrorData = await response.json();
+      return { status: response.status, error: errorData.error };
     }
+    const data: string = await response.json();
 
     return { status: response.status, error: null, data };
   } catch (error) {
@@ -45,19 +43,18 @@ export default function Home() {
   const [isServerError, setIsServerError] = useState(false);
 
   // Try to load cache with user's informations
-  const { data } = useUserData();
+  const { data, isError, error } = useUserData();
 
   // Redirect to profile page if user's already authenticated
   useEffect(() => {
-    console.log('Entrée dans le useEffect');
-
     if (data) {
-      console.log('data:', data);
-
       navigate('/profile');
     }
-    //TODO manage error message if isError
-  }, [data]);
+
+    if (isError) {
+      console.log(error.message);
+    }
+  }, [data, isError, error]);
 
   // Update formData with current field value
   const handleChange = async (e: {

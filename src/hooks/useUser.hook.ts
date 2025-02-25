@@ -1,26 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 
+import userProfileSchema from '../schemas/userProfile.schema';
+import { UserProfile } from '../types/user.type';
+import { ErrorData } from '../types/error.type';
+
 const apiUrl: string = import.meta.env.VITE_API_URL;
 
 const getUser = async () => {
-  console.log('exécution du fecth');
-
-  const response = await fetch(`${apiUrl}/users/`, {
+  const response = await fetch(`${apiUrl}/users/profile`, {
     method: 'GET',
     credentials: 'include',
   });
-  //TODO data type as result or error + validation
-  const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error);
+    const errorData: ErrorData = await response.json();
+    throw new Error(errorData.error);
   }
 
-  return data;
+  const data: UserProfile = await response.json();
+
+  return userProfileSchema.parse(data);
 };
 
 export const useUserData = () => {
-  console.log('Hook useUserData');
-
   return useQuery({
     queryKey: ['user'],
     queryFn: getUser,

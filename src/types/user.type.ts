@@ -1,3 +1,8 @@
+import { z } from 'zod';
+
+import userProfileSchema from '../schemas/userProfile.schema';
+import { Libraries } from './libraries.type';
+
 export interface IUser {
   id: number;
   nickname: string;
@@ -5,9 +10,9 @@ export interface IUser {
   password: string;
   repeatPassword: string;
   role: string;
-  book: IBook[];
-  comic: IComic[];
-  boardGame: IBoardGame[];
+  book: Libraries[];
+  comic: Libraries[];
+  boardGame: Libraries[];
   created_at: Date;
   updated_at?: Date;
 }
@@ -19,4 +24,4 @@ export type SignupForm = Pick<
   'nickname' | 'email' | 'password' | 'repeatPassword'
 >;
 
-export type LoginResponseData = string | { error: string };
+export type UserProfile = z.infer<typeof userProfileSchema>;

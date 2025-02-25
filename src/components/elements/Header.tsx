@@ -1,11 +1,10 @@
-import { NavLink } from "react-router-dom";
+import { NavLink } from 'react-router-dom';
 
 export default function Header() {
-
   return (
     <header className="header">
       <section className="header__logo">
-        <img className="header__img" src="" alt="logo" />
+        {/* <img className="header__img" src="" alt="logo" /> */}
       </section>
       {/* <section className="header__menu">
         <section className="header__signout">
@@ -21,4 +20,4 @@ export default function Header() {
       </section> */}
     </header>
   );
-};
+}
