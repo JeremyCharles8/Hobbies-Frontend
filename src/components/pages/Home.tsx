@@ -57,9 +57,7 @@ export default function Home() {
   }, [data, isError, error]);
 
   // Update formData with current field value
-  const handleChange = async (e: {
-    target: { name: string; value: string };
-  }) => {
+  const handleChange = (e: { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
 
     setErrorMessage('');
@@ -67,6 +65,7 @@ export default function Home() {
       ...formData,
       [name]: value,
     });
+    console.log(formData);
   };
 
   // Call login fetch function with formData and redirect to profile page
